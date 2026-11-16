@@ -5,8 +5,8 @@ date: "Nov 7 2026"
 draft: false
 tags:
   - Luau
-  - TypeScript
-  - React
+  - Roblox-TypeScript
+  - Roblox-React
 ---
 
 <img src="/projects/images/cozycuddlelogowhite.png" alt="Cozy Cuddle Logo" style="width: 600px; height: auto;" />

@@ -5,7 +5,7 @@ date: "Nov 15 2026"
 draft: false
 tags:
   - Luau
-  - TypeScript
+  - Roblox-TypeScript
 # demoUrl: https://astro-sphere-demo.vercel.app
 # repoUrl: https://github.com/RorutopThe2nd/GrowAnArmy
 ---
