@@ -1,7 +1,7 @@
 ---
 title: "I Wish I Was Brave"
 summary: "Luau survival-horror game jam entry featuring sliding-window room generation, a multi-stimulus fear system, and a custom cutscene framework"
-date: "Jun 22 2026"
+date: "Mar 12 2026"
 draft: false
 tags:
   - Luau
