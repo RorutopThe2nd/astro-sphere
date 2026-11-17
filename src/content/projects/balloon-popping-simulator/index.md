@@ -1,40 +1,82 @@
 ---
 title: "Balloon Popping Simulator"
-summary: "A simulator game about popping balloons disguised as PVE FPS game"
+summary: "Multithreaded Luau movement-FPS disguised as a simulator, featuring Octree-indexed boid enemies, hybrid Blink replication, and custom vector HUD design"
 date: "Mar 12 2026"
 draft: false
 tags:
   - Luau
 ---
 
-Balloon Popping Simulator, as the name suggest you pop balloons and get money, except the idea is each map progressively gets gloomier and serious instead of whimsy.
+<img style="width: 100%; border-radius: 8px; display: block;" src="/projects/images/balloon-popping-sim/hudmockup.png" alt="Balloon Popping Simulator Vector HUD and Logo Mockup" />
 
-The game allows you to be in either 3rd person, Shiftlock, or 1st person.
+Balloon Popping Simulator subverts the standard simulator formula: players start by popping balloons with improvised stationery—rocks, bamboo darts, bottle caps, pencil pieces, toothpicks, and thumbtacks—before progressing into a high-speed, momentum-driven PVE shooter inspired by _ULTRAKILL_. Across a 7-page design specification spanning five planned zones (_Plains_, _Forest_, _Mountains_, _Shores_, and _Abandoned City_), the game was designed to gradually shed its whimsical simulator presentation for darker environments, industrial UI, and aggressive enemy archetypes.
 
-The player starts with a rock as the weapon. Coins can be gained from popping balloons, and players can buy new weapons in each map. However, the currency will be different for each map.
+## Movement FPS & Modular Combat
 
-When popping balloons, the player will get the counter to go up, and players have to go back to the base hub in the map to get into a collector machine and get the money. Dying to balloons will lose all of the pop counter.
+- **Momentum Controller & Camera Modes:** Built a physics-based character controller supporting momentum preservation across **1st-person**, **3rd-person**, and **Shiftlock** perspectives.
+- **Modular `ActionWrapper` Abilities:** Implemented three rebindable movement abilities—**Swiftness** (temporary speed boost), **Dash**, and **MidAirJump**—each encapsulated as a standalone `ActionWrapper` module managing its own cooldown and activation state.
+- **Ricochet Projectiles & Sanity-Checked Hit Detection:** Built modular weapon and projectile classes on top of **FastCast Redux**, supporting surface and balloon ricochets. To keep projectile combat responsive without sacrificing security, clients run overlap checks against streamed projectile hitboxes and report hits to the server, which validates each claim against pending-hit sanity checks and authoritative health values before popping layers.
 
-Current state of progress
+## Multithreaded Boid Enemies & Hybrid Networking
 
-Initially, I focused on the star balloon enemies first. I used the boid algorithm to do it. Despite the fact that boids should mostly be used on the client side, I managed to make them work with server-client replication and added hitboxes to the boids, which eventually became balloons with children layers. The Boid Spatial Query uses Sleitnick/Octree.
+Refactored the flocking and spatial-query architecture from **Boid Testing Area** into modular enemy entities:
 
-Next, I developed the weapons tool. I used FastCast Redux as the projectile system. I then made modular classes for weapons and projectiles. It gave me so much control over being able to make the projectile bounce off parts and the balloons. The projectile uses the balloons' Octree for hitting them.
+- **Multi-Layer Balloons & Behavior Archetypes:** Custom Blender balloon models support nested child layers tracked via ancestor IDs so multi-layered balloons pop sequentially. AI behaviors are configured per archetype—including **Chase** (with pitch and roll clamping to prevent unnatural tumbling), **Flee** (steering away from nearby players), and **Static**—driven by a folder-based `BalloonSpawner` that respawns empty nodes on a 3-second cycle.
+- **Parallel Luau Execution (`Actor`s):** Both the server simulation/replication queue and client snapshot processing run desynchronized inside **Parallel Luau Actors** to offload math from the main thread.
+- **Octree Queries & Hybrid `Blink` Replication:** Spatial lookups combine `Sleitnick/Octree` with a cached play-volume search grid. After stress-testing **300 active balloons** and hitting instance and `Recv` bandwidth bottlenecks in dense clusters, I migrated replication to the hybrid pipeline prototyped in _Boid Testing Area_:
+  - Server queues entity creation, destruction, and delta-thresholded `CFrame` updates, flushing binary **Blink** packets at **~8 Hz** with timestamps.
+  - Clients buffer snapshots to linearly interpolate between the two most recent states, batching visual updates via `BulkMoveTo` and hiding parts outside a **100-stud culling radius**.
 
-After that, I made my own Inventory System UI. I made like 7 equip slots in total, but the slots were supposed to be locked by progression. Weapons can be put in the equip slots. Once the player closes the custom UI menu, the player's tools are regenerated with the new weapons put into the equip slots. They do a cool transition animation with a metal sound effect.
+## UI/UX Design, Inventory & Custom Godot Pipeline
 
-Next, I made 3 ability buttons. Each has a different keybind trigger. The ability code is modular too. I made roll, dash, and air jump as the abilities with cooldowns, using linear velocity. Additionally, the character uses a physics Character Controller so it makes momentum possible. This was an early feature before, so it's kind of buggy.
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/inventorysystem.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Inventory System and Equipping Weapons</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <img style="width: 100%; border-radius: 8px; display: block;" src="/projects/images/balloon-popping-sim/passives-ui.jpg" alt="Passives Loadout UI Mockup" />
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Passives Loadout Matrix Mockup</figcaption>
+  </figure>
+</div>
 
-The balloon-oids are also quite modular. Some properties are just able to be modified. I made chase, static, and path-following balloons. They have collision and object avoidance implemented, but it is quite problematic in closed spaces.
+- **Vector HUD & Shape-Coded Visual Hierarchy:** Designed the game's logo and full HUD system in Inkscape to blend simulator clarity with shooter grit—pairing industrial metal frames, hazard-stripe dividers, and a `999X COMBO!` counter with distinct geometric silhouettes per system (tilted diamonds for navigation, circular `Q`/`E`/`R` ability wheels, crosshair-bracketed weapon slots, and a triangular **Passives** loadout grid).
+- **10-Slot Split Hotbar with 3D Previews:** Engineered a custom Roblox inventory dividing equip slots into a **6:4 split** (6 general slots, 4 progression-gated special slots) with live 3D `ViewportFrame` weapon previews. Closing the menu regenerates equipped tools with a transition animation and metallic audio cue.
+- **Godot-to-Luau Branching Dialogue Exporter:** Forked an open-source Godot dialogue addon, extended its node features, and built a custom **Luau export pipeline** so branching conversations compile directly into native Luau modules.
+- **State-Machine Quest Framework (`Power Quest`):** Built a modular quest engine where each quest instantiates per player and transitions cleanly through `Inactive → Active → Completed` states (validated with an initial `AppleQuest` test case).
+- **`ProfileStore` Persistence:** Saves and restores per-map currency tokens, unlocked and equipped weapons, abilities, passives (accessories/gadgets), and custom player keybinds on join.
 
-The game interestingly has dialogue and quests. There wasn't any good quest system that worked. So I actually used Godot for the dialogue system with options.
+## Design Roadmap & Post-Mortem
 
-Visual dialogue
+- **Unwired Paper Mechanics:** Several systems from the original design notebook remain unimplemented in the current build—including the risk-reward pop-counter collector loop (banking pops at a hub collector vs. losing unbanked pops on death), the live `999X` combo meter, progressive map tonal shifts, and end-of-zone story bosses.
+- **Scope & Architectural Takeaways:** Solo-producing five full biomes in Blender alongside a large weapon roster proved out of scope for a single developer, and the 300-balloon crowding bottleneck highlighted the limits of `Instance`-backed enemy state—lessons that directly shaped the pure buffer-driven Structure-of-Arrays architecture in **Grow An Army**.
 
-I yoinked an addon from the Godot library. At a glance, it seemed to be good, but it didn't fill my needs and it didn't have Luau export, of course. I used the extension documentation to modify the dialogue system addon and used ChatGPT-4 to figure out the Luau parsing; as a result, it worked on Roblox. I also made more features for the dialogue system addon on Godot.
+## Previews
 
-For the Quest System, I did make one myself called Power Quest. It gives more modularity than the other quest systems I've seen on the DevForum.
-
-Tested against 300 balloon entities. There is distance culling. My PC lagged from all these balloons in a crowded area. The Recv is also high too. This wasn't using buffers before, but I could use Blink networking.
-
-My ambition is too high; the large map seems too big for me to build and sculpt in Blender. Weapons also will take long to make. The optimization, I guess, is a mess. I did consider making a boss after the "Story event" of a map is finished to be able to progress to the next map.
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/balloonoidstightspace.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Balloon-oids navigating through a tight space</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/changingAIBehavior.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Change the AI Behavior by renaming the spawn folder nor the balloon spawn part</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/weapons.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Weapons 1</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/weapons2.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Weapons 2</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/buckshotandfullauto.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Buckshot projectiles and a full auto weapon</figcaption>
+  </figure>
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/balloon-popping-sim/abilities.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Abilities</figcaption>
+  </figure>
+ 
+</div>
