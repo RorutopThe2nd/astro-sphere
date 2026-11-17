@@ -7,23 +7,20 @@ tags:
   - Luau
 ---
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium.
+This is a place to experiment with large-scale boids. I'm pretty sure this was for Balloon Popping Simulator that I will be making. The flocking algorithm works, and it became my favorite algorithm.
 
-Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas.
+I started with using a wedge part; IIRC, it was on the server side. Then I made a large bounding box so the moving boids that use anchored CFrame updates on Heartbeat teleport back to the opposing edge. Later, I removed that when I understood the boid algorithm and when I made it so that the boids drag their velocity back to the bounding box when they go outside the large box.
 
-Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem.
-Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+The flocking stuff using Octree for neighbor searching does work pretty well, but I encountered an issue that made the boid drag and stop in place while its facing direction was confused about where to go.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium.
+I then tried to use Linear Velocity for physics collision since I made some obstacles for my boids. I noticed the lag and the server instability when I tried to go above like 60 boids. I did implement obstacle avoidance, but the boids were likely to hit the obstacle. So then I switched to Client-Server Replication, where the wedge is client-side while the server tells the client to move it based on where the server boid model is, calculating the boid's position and their velocity.
 
-Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas.
+I had tried 2 methods.
 
-Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem.
-Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+    Velocity-driven client boid: The server sends position and velocity to the client, a batch of them serialized. Then, the client replication system changes the client boid data to match the server's. It has a threshold to hard sync the client position from the server based on distance, but it ended up making a lot of desyncs, which looked jarring.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium.
+    Snapshot Interpolation is a server-client interpolation where the client manages a snapshot history of whatever the server sends, and the server has a 10Hz tick to send the packet to the client. It's quite smooth, but it has delays, which won't be good for Balloon Popping Simulator.
 
-Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas.
+It was quite fun making the boids follow me. They're my children. I also tried to make them follow me into a windmill building on the map, but the boids struggled to get in because of the obstacle avoidance logic. They also sometimes noclip, which is concerning.
 
-Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem.
-Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
+All of this boid stuff was transferred and refined (remade into a modular system) for Balloon Popping Simulator.
