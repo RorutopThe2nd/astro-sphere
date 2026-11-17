@@ -11,7 +11,7 @@ demoUrl: "https://www.roblox.com/games/75997752144237/I-wish-i-was-brave"
 
 <img style="width: 100%; border-radius: 8px; display: block;" src="/projects/images/iwiwb.png" alt="I Wish I Was Brave Banner" />
 
-Built for a week-long HiddenDevs game jam themed around _"Wish"_, **I Wish I Was Brave (WIWB)** is a first-person survival horror game where a child ventures through a dreamscape tunnel to reach Room 20 armed with only a flashlight and a pistol. After bootstrapping the codebase on Day 1 with foundational scripts adapted from **Cozy Cuddle**, production stalled during a multi-day team-lead radio silence before a late scope pivot with ~4 days remaining compressed final assembly into a 3-day sprint.
+Built for a week-long HiddenDevs game jam themed around _"Wish"_, **I Wish I Was Brave (WIWB)** is a first-person survival horror game where a child ventures through a dreamscape tunnel to reach Room 20 armed with only a flashlight and a pistol. After bootstrapping the codebase on Day 1 with foundational systems adapted from **Cozy Cuddle**, a mid-jam scope pivot compressed final production into a 3-day sprint.
 
 ## Procedural Corridor & Room Archetypes
 
@@ -34,7 +34,7 @@ Rather than pre-building 20 static levels or managing branching pathfinding unde
 - **Data-Driven `CutsceneManager`:** Adapted and extended core systems from _Cozy Cuddle_ into a dedicated cutscene orchestrator handling camera tracks, movement locks, screen fades, and scene presets across the bedroom intro, stair-descent cave transition, tutorial, and ending—paired with a subtitle system supporting localization.
 - **`DataStore` Checkpoints & Tension Disconnects:** Saves checkpoint progression (`Start`, `Cave`, `AnotherCheckpoint`), `New Game` overwrite confirmations, and intro-skip flags in `DataStore` profiles. Instead of standard respawns, lethal hits or max-fear deaths disconnect the player with custom status messages (`"..."` / `"FEAR"`), resuming from their last saved checkpoint on rejoin.
 
-## Late Scope Pivot & Sprint Post-Mortem
+## Scope Triage & Sprint Post-Mortem
 
-- **Adapting to Mid-Jam Stalls:** When progress paused mid-week during team-lead radio silence (downtime I used to troubleshoot a separate Hytale modding project), the game was re-scoped with roughly four days left on the clock—requiring rapid feature triage to assemble a playable 20-room loop in three days, including cutting the flashlight battery drain loop while leaving collectible battery pickups in the world.
+- **Rapid Feature Triage:** Re-scoping the game mid-week left roughly three days to assemble and test a playable 20-room loop—requiring hard cuts like dropping the flashlight battery drain mechanic while keeping the core procedural rooms, fear meter, and checkpoint flow intact.
 - **Scene Registry Collision Bug:** Under that compressed final build window, the Room 20 ending cutscene was duplicated from the intro and accidentally registered under the same `CutsceneManager` key (`"BedWakeUpIntro"`). That duplicate identifier silently overwrote the intro sequence on release, breaking progression—a concrete lesson in strict identifier validation that carried into later architectures.
