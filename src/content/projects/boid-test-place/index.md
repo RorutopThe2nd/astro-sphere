@@ -1,28 +1,55 @@
 ---
 title: "Boid Testing Area"
-summary: "Client-rendered, server-simulated boids flocking experiment focused on replication and spatial optimization."
+summary: "Headless server-simulated, client-rendered boids flocking sandbox exploring Octree spatial queries, half-precision Blink networking, and multi-player target tracking"
 date: "Feb 1 2025"
 draft: false
 tags:
   - Luau
 ---
 
-This is a place to experiment with large-scale boids. I'm pretty sure this was for Balloon Popping Simulator that I will be making. The flocking algorithm works, and it became my favorite algorithm.
+Boid Testing Area is an R&D sandbox built to prototype and stress-test large-scale flocking behavior ahead of **Balloon Popping Simulator**. The final architecture runs pure simulation math on the server with zero server-side `Instance` rendering, streaming quantized state updates to client-rendered wedge agents.
 
-I started with using a wedge part; IIRC, it was on the server side. Then I made a large bounding box so the moving boids that use anchored CFrame updates on Heartbeat teleport back to the opposing edge. Later, I removed that when I understood the boid algorithm and when I made it so that the boids drag their velocity back to the bounding box when they go outside the large box.
+## Flocking Simulation & Spatial Partitioning
 
-The flocking stuff using Octree for neighbor searching does work pretty well, but I encountered an issue that made the boid drag and stop in place while its facing direction was confused about where to go.
+- **Steering & soft containment:** Evolved from anchored server `CFrame` updates with edge-wrapping teleports to continuous velocity steering with soft bounding-box forces that smoothly pull stray boids back into the play volume.
+- **Multi-player target tracking & swarm splitting:** In multiplayer test servers, boids dynamically evaluate nearby players—splitting, switching targets, and weaving around curved arch obstacles to pursue different players in real time.
+- **Decoupling physics for scale:** Early tests using `LinearVelocity` physics constraints for obstacle collisions degraded server stability above ~60 boids. Removing physics constraints and server-side parts in favor of headless math eliminated the bottleneck.
+- **Dual-Octree spatial indexing:** Implemented an Octree for fast neighbor flocking queries (resolving an early steering bug where boids stalled in place with erratic facing directions), paired with a secondary Octree storing static map geometry voxelized into **12-stud obstacle nodes**.
+- **Indoor room navigation (WIP):** Because local obstacle avoidance prevented boids from reliably entering a windmill interior—and occasionally caused wall clipping—I began prototyping a macro room-navigation layer using waypoint attachments and **Dijkstra's algorithm** to weight paths between rooms.
 
-I then tried to use Linear Velocity for physics collision since I made some obstacles for my boids. I noticed the lag and the server instability when I tried to go above like 60 boids. I did implement obstacle avoidance, but the boids were likely to hit the obstacle. So then I switched to Client-Server Replication, where the wedge is client-side while the server tells the client to move it based on where the server boid model is, calculating the boid's position and their velocity.
+## Hybrid Replication & Binary Networking
 
-I had tried 2 methods.
+Before landing on the final network model, I tested and discarded two pure approaches:
 
-1. Velocity-driven client boid: The server sends position and velocity to the client, a batch of them serialized. Then, the client replication system changes the client boid data to match the server's. It has a threshold to hard sync the client position from the server based on distance, but it ended up making a lot of desyncs, which looked jarring.
+1. **Velocity-driven sync with distance snaps:** Streaming positions and velocities with a hard-reset distance threshold produced jarring visual desyncs.
+2. **10 Hz snapshot interpolation:** Interpolating a server snapshot buffer looked smooth but introduced too much latency for responsive gameplay in _Balloon Popping Simulator_.
 
-2. Snapshot Interpolation is a server-client interpolation where the client manages a snapshot history of whatever the server sends, and the server has a 10Hz tick to send the packet to the client. It's quite smooth, but it has delays, which won't be good for Balloon Popping Simulator.
+The resulting hybrid pipeline combines threshold-filtered binary snapshots with fixed-timestep client prediction, keeping client receive bandwidth around **~12–16 KB/s** during active multi-player swarm tracking:
 
-It was quite fun making the boids follow me. They're my children. I also tried to make them follow me into a windmill building on the map, but the boids struggled to get in because of the obstacle avoidance logic. They also sometimes noclip, which is concerning.
+- **Quantized Blink buffers:** Entity batches are packed into binary buffers via **Blink** with every vector compressed into **16-bit half-precision floats**.
+- **Delta-threshold transmission:** Roughly once every 10 `Heartbeat`s, the server transmits only attributes that changed past an epsilon threshold (position, look direction, velocity, acceleration, and speed) rather than redundant full snapshots.
+- **Fixed-timestep client integration:** Clients integrate velocity locally on a fixed `1/60`s timestep accumulator for smooth frame-rate motion, applying a **5-stud hard reset** only if client drift exceeds tolerance.
 
-Digging through the place file itself, there's stuff I never got into above. The networking ended up running on Blink, which packs the whole boid batch into binary buffers with every vector squeezed into 16-bit half-precision floats, and it only sends values that actually changed past a small threshold (position, look direction, velocity, acceleration, speed) instead of full snapshots, roughly once every ten heartbeats. The client then integrates the velocity locally on a fixed 1/60 timestep accumulator, with a 5-stud hard reset if it drifts too far from where the server says it should be — so the real system is kind of a hybrid of the two methods I described, not purely either one. the Quarantine folder is a graveyard of everything I tried before settling on it, just like commits before I discovered what git is: a spatial grid, a flat spatial hash, three older BoidHandler revisions, and ByteNet as an alternative networking library. I also voxelized the obstacle surfaces into 12-stud nodes and stuffed them into a second octree so the boids would have some awareness of the geometry around them, and there's a half-finished room navigation prototype for the building — rooms with waypoint attachments and a Dijkstra pass to cost the paths between them — which was supposed to be the proper fix for the boids that couldn't find their way inside. Oh, and the server doesn't render its own wedges at all anymore; they only exist client-side now.
+## Iterative Benchmarking & Production Handoff
 
-All of this boid stuff was transferred and refined (remade into a modular system) for Balloon Popping Simulator.
+Before adopting Git, I tracked architectural iterations in a `Quarantine` archive—benchmarking a uniform spatial grid, a flat spatial hash, three `BoidHandler` revisions, and `ByteNet` against the final `Octree` + `Blink` stack. Once validated here, the core flocking and replication systems were refactored into a clean, modular architecture for **Balloon Popping Simulator**.
+
+## Previews
+
+<figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/boid-test-place/ecosystemofboids.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Ecosystem Of Boids</figcaption>
+</figure>
+
+<figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/boid-test-place/boidsbehavior.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Boids Behavior</figcaption>
+</figure>
+<figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/boid-test-place/lvbottleneck.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Linear Velocity Bottleneck</figcaption>
+</figure>
+<figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/boid-test-place/boids-multiplayer.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Multiplayer Boids Targeting</figcaption>
+</figure>
