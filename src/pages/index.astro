@@ -13,7 +13,7 @@ const posts = (await getCollection("blog"))
   .slice(0,3)
 
 const projects = (await getCollection("projects"))
-  .filter(project => !project.data.draft)
+  .filter(project => !project.data.draft && !project.data.tags.includes("GameJam"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0,3)
 
