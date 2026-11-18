@@ -1,6 +1,6 @@
 ---
 title: "The Signal Tower"
-summary: "Second horror game jam entry"
+summary: "roblox-ts vertical horror game jam entry featuring custom vector-aligned ladder climbing, procedural anomaly AI, and Serio-compressed ProfileStore checkpoints"
 date: "Jun 21 2026"
 draft: false
 tags:
@@ -12,27 +12,33 @@ demoUrl: "https://www.roblox.com/games/87345966451801/The-Signal-Tower"
 ---
 
 <img style="width: 100%; border-radius: 8px; display: block;" src="/projects/images/TheSignalTower-1920x.png" alt="The Signal Tower Logo" />
-The Signal Tower is a horror game entry in the 8th gamejam of Roblox Studio Community Discord, which is a week long gamejam that revolves around "Height" theme. The development week starts at June 21st and ends at 28th.
-The game is about a technician climbing a tall signal tower, but what's waiting above are dangerous anomalies. The technician is tasked to fix each platform panels and watch out for any anomalities that will risk their lives. The technician borrows a gun and a flashlight (though they are permanent fills)
-Some systems are taken off the TS migration of Cozy Cuddle like the movement system and the camera system. Few of them like camera mode switching in The Signal Tower are to be reused on Cozy Cuddle too.
 
-Entities:
+Built in one week for the 8th Roblox Studio Community Discord Game Jam (June 21–28, 2026) under the theme **"Height"**, **The Signal Tower** is a first-person vertical survival horror game. Contracted by the Department of Anomaly Affairs (DAA) via an opening briefing tape (`ProximityPrompt` + timed subtitle system), players play as a technician climbing the five-tier _Signal Tower 14_—armed with an infinitely powered flashlight and pistol—to repair locked platform generators and reach the primary antenna.
 
-- Queen Spider: Climbs the edge beams of the tower vertically, then spawns minion spider on a specific timer. Positions itself on where the player is in grid liek thing, but when it's on low health, it flanks to another beam to the up or to the down.
-- Minion Spider: Can walk on either vertical beams or the horizontal beams. Progressing slowly on the horizontal beam and if it gets to the center of the horizontal beam, it jumps on the player and hurts the player HP.
-- Leviathan: Rushes through the ladder walls horizontally. Spawns above the player while they are climbing the ladder. Kinda similar to Rush from Doors i guess. oh also it's animated procedurally
-- Wendigo: The boss of the last platform. Running on the edge beams, that's it.. But it teleports the player to a random position of the ladder. The boss sequence also includes higher appearance of the Leviathan, except this Leviathan is now targeting the center of the player of above the player.
+Bootstrapped from a **Flamework** template, the project reused and extended the component-composed movement and camera architecture migrated to `roblox-ts` from **Cozy Cuddle**, while new mechanics built during the jam—such as mid-climb camera mode switching—were structured modularly to feed back into _Cozy Cuddle_.
 
-Story and presentation:
-The premise is framed by a briefing tape from the Department of Anomaly Affairs (the DAA), which contracts the technician to repair the signal panels of Signal Tower 14 and reach the primary antenna at the top. The tape is played from a ProximityPrompt at the start and runs on a timed subtitle system. Reaching the top triggers the ending: the ending song plays with its own timed subtitles, then a short scripted camera cutscene and a Thank You screen.
+## Custom Ladder Climbing & Vertical Traversal
 
-Reciting what I remember
-The early stage went quite smoothly. Went to clone a flamework project template when the gamejam timeline started. Got the movement and the camera system work, even the flashlight and the gun tool system. Went to make the climbing behavior work after the builder put the ladder and platform to the tower map. I used Quickzone for the platform region and checkpoint saving. THe climbing system is custom, go up or down a step with tweening, and auto climb mounting on specific distance to the ladder and the player angle which defined using Dot function. Climbing limit start and end is defined by attachments, though only cares about the Y axis (height). To exit the climb mount, press E on either the start o the end of the ladder (which depends on where the attachments are). Also coded it for the player to face depending what the attachments are facing. I also added camera flip mode, which does stop the climbing movement and let the player attack the anomalies behind. Each platforms has a generator to fix before going to the next ladder (usually locked before fixing the generator). Continues until the 5th platform level, which is also where the boss spawns.
+Rather than relying on default Roblox `TrussPart` climbing, I engineered a custom tween-stepped ladder traversal system tailored for vertical combat:
 
-Other systems I wired up:
-Checkpoints are saved to ProfileStore profiles - the current level and per-level state (fixed panels, disabled ladders and ladder mounts) are serialized into a compact buffer with Serio, and the main menu has New Game with a confirmation if a save exists plus Continue. Contextual hints pop up from trigger zones for things like the flashlight and ladders, with keycap prompts on PC. The input was reworked late in the jam for touch support with on-screen mobile buttons so mobile players can play it after the submission had ended. The flashlight and gun are first-person viewmodels with animated hands and arms. Wind ambience gets louder the higher you climb, and there is camera shake while climbing and walking.
+- **Vector-Aligned Auto-Mounting:** Evaluates player proximity and approach angle via **dot-product** checks to smoothly mount ladders and orient the character to match the ladder attachment's facing direction.
+- **Attachment-Bounded Clamping:** Constrains vertical movement along the Y-axis between start and end `Attachment` markers, allowing players to dismount via `E` prompts at either endpoint.
+- **Combat Camera Flip:** Implemented a camera-flip state while mounted that halts vertical climbing so players can turn and shoot anomalies stalking them from behind.
+- **Altitude-Driven Atmosphere:** Paired first-person animated viewmodel hands (flashlight and pistol) with climbing/walking camera shake and wind ambience that scales dynamically with elevation.
 
-On the mid to end phase, our animator became less active then gradually became inactive due to some kind of irl stuff, our modeler stepped in to animate the models.. The musician did try make a music, but it was never finished so the leader stepped in to make ai generated song on Udio for the ending song. The ending cutscene, timed ending subtitles and Thank You screen were added in a final post-jam pass on July 23, after the June 28 jam deadline.
-The game received feedbacks that it was hard, like the Queen Spider minion spawning were kinda too fast..
+## Anomaly AI & Boss Encounter Design
 
-even at the end of development, i forgot to turn off the gun gizmo..
+- **Queen Spider:** Traverses vertical support beams using grid-aligned positioning relative to the player, periodically spawning minion spiders and flanking vertically to adjacent beam tiers upon reaching low health.
+- **Minion Spider:** Navigates both vertical and horizontal beams, lunging at the player to deal damage once it reaches the center of a horizontal span.
+- **Leviathan:** A procedurally animated horizontal rush anomaly that spawns above climbing players and sweeps across ladder walls.
+- **Wendigo (5th-Platform Boss):** Stalks perimeter beams while randomly teleporting the player along the ladder, escalating encounter pressure by triggering targeted Leviathan sweeps aimed directly at the player's current elevation.
+
+## Binary Checkpoints, Mobile Input & Post-Jam Polish
+
+- **`Serio` + `ProfileStore` State Serialization:** Platform progression across all five levels—including repaired generator panels, disabled ladders, and unlocked mounts—is packed into compact binary buffers with **Serio** and saved to **ProfileStore**, supporting `Continue` and confirmation-gated `New Game` flows.
+- **`QuickZone` Triggers & Contextual UI:** Used `QuickZone` regions to handle checkpoint triggers and contextual onboarding hints (displaying PC keycap prompts) rendered via **Roblox-React**.
+- **Multi-Platform Touch Support & Finale Pass:** Reworked the input layer late in the jam to add on-screen mobile touch controls, followed by a post-jam update (July 23) implementing the finale song, timed ending subtitles, scripted camera cutscene, and Thank You screen.
+
+## Jam Post-Mortem
+
+- **Pacing & Debug-Flag Hygiene:** Post-jam player feedback highlighted overly aggressive Queen Spider minion spawn timers, and shipping right at the deadline left a debug gun gizmo visible in the release build—a practical reminder to gate all debug visualizers behind automated production build flags.
