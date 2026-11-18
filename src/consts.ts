@@ -4,20 +4,14 @@ import type { Site, Page, Links, Socials } from "@types";
 export const SITE: Site = {
 	TITLE: "Rorutop",
 	DESCRIPTION:
-		"Welcome to Astro Sphere, a portfolio and blog for designers and developers.",
-	AUTHOR: "Mark Horn",
+		"Technical Lead and gameplay systems programmer specializing in Luau, roblox-ts, and high-performance Roblox systems.",
+	AUTHOR: "Rorutop",
 };
 
 // Work Page
 export const WORK: Page = {
 	TITLE: "Work",
 	DESCRIPTION: "Places I have worked.",
-};
-
-// Blog Page
-export const BLOG: Page = {
-	TITLE: "Blog",
-	DESCRIPTION: "Writing on topics I am passionate about.",
 };
 
 // Projects Page
@@ -43,10 +37,6 @@ export const LINKS: Links = [
 		HREF: "/work",
 	},
 	{
-		TEXT: "Blog",
-		HREF: "/blog",
-	},
-	{
 		TEXT: "Projects",
 		HREF: "/projects",
 	},
@@ -57,25 +47,37 @@ export const SOCIALS: Socials = [
 	{
 		NAME: "Email",
 		ICON: "email",
-		TEXT: "markhorn.dev@gmail.com",
-		HREF: "mailto:markhorn.dev@gmail.com",
+		TEXT: "rorutop.212@gmail.com",
+		HREF: "mailto:rorutop.212@gmail.com",
+	},
+	{
+		NAME: "Discord",
+		ICON: "discord",
+		TEXT: "rorutop",
+		HREF: "https://discord.com/users/439205321765027840",
 	},
 	{
 		NAME: "Github",
 		ICON: "github",
-		TEXT: "markhorn-dev",
-		HREF: "https://github.com/markhorn-dev/astro-sphere",
+		TEXT: "rorutopThe2nd",
+		HREF: "https://github.com/rorutopThe2nd",
 	},
 	{
-		NAME: "LinkedIn",
-		ICON: "linkedin",
-		TEXT: "markhorn-dev",
-		HREF: "https://www.linkedin.com/in/markhorn-dev/",
+		NAME: "YouTube",
+		ICON: "youtube",
+		TEXT: "@rorutop3596",
+		HREF: "https://www.youtube.com/@rorutop3596",
 	},
 	{
-		NAME: "Twitter",
+		NAME: "GameBanana",
+		ICON: "gamebanana",
+		TEXT: "rorutop",
+		HREF: "https://gamebanana.com/members/1831109",
+	},
+	{
+		NAME: "X",
 		ICON: "twitter-x",
-		TEXT: "markhorn_dev",
-		HREF: "https://twitter.com/markhorn_dev",
+		TEXT: "@RorutopLeBloon",
+		HREF: "https://x.com/RorutopLeBloon",
 	},
 ];
