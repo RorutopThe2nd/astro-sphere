@@ -1,7 +1,7 @@
 ---
 company: "FNF: HackerHaven (formerly VS John Doe)"
 role: "Co-Owner, Lead Programmer & Technical Artist"
-dateStart: "04/05/2021"
+dateStart: "05/15/2022"
 dateEnd: "12/01/2025"
 ---
 
