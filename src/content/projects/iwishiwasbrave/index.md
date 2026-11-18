@@ -1,7 +1,7 @@
 ---
 title: "I Wish I Was Brave"
 summary: "Luau survival-horror game jam entry featuring sliding-window room generation, a multi-stimulus fear system, and a custom cutscene framework"
-date: "Mar 12 2026"
+date: "Jan 25 2026"
 draft: false
 tags:
   - Luau
@@ -11,7 +11,7 @@ demoUrl: "https://www.roblox.com/games/75997752144237/I-wish-i-was-brave"
 
 <img style="width: 100%; border-radius: 8px; display: block;" src="/projects/images/iwiwb.png" alt="I Wish I Was Brave Banner" />
 
-Built for a week-long HiddenDevs game jam themed around _"Wish"_, **I Wish I Was Brave (WIWB)** is a first-person survival horror game where a child ventures through a dreamscape tunnel to reach Room 20 armed with only a flashlight and a pistol. After bootstrapping the codebase on Day 1 with foundational systems adapted from **Cozy Cuddle**, a mid-jam scope pivot compressed final production into a 3-day sprint.
+Built for a week-long HiddenDevs game jam themed around _"Wish"_ (January 19-25, 2026), **I Wish I Was Brave (IWIWB)** is a first-person survival horror game where a child ventures through a dreamscape tunnel to reach Room 20 armed with only a flashlight and a pistol. After bootstrapping the codebase on Day 1 with foundational systems adapted from **Cozy Cuddle**, a mid-jam scope pivot compressed final production into a 3-day sprint.
 
 ## Procedural Corridor & Room Archetypes
 
