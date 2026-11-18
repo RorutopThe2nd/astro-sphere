@@ -4,7 +4,7 @@ summary: "roblox-ts vertical horror game jam entry featuring custom vector-align
 date: "Jun 21 2026"
 draft: false
 tags:
-  - Roblox-Typescript
+  - Roblox-TypeScript
   - Roblox-React
   - Luau
   - GameJam
