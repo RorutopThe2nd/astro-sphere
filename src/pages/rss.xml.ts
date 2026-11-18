@@ -7,24 +7,28 @@ type Context = {
 }
 
 export async function GET(context: Context) {
-	const posts = await getCollection("blog")
-  const projects = await getCollection("projects")
+  const posts = await getCollection("blog", (entry) => !entry.data.draft)
+  const projects = await getCollection("projects", (entry) => !entry.data.draft)
 
-  const items = [...posts, ...projects]
-
-  items.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+  const items = [
+    ...posts.map((post) => ({
+      title: post.data.title,
+      description: post.data.summary,
+      pubDate: post.data.date,
+      link: `/blog/${post.id}/`,
+    })),
+    ...projects.map((project) => ({
+      title: project.data.title,
+      description: project.data.summary,
+      pubDate: project.data.date,
+      link: `/projects/${project.id}/`,
+    })),
+  ].sort((a, b) => b.pubDate.getTime() - a.pubDate.getTime())
 
   return rss({
     title: SITE.TITLE,
     description: SITE.DESCRIPTION,
     site: context.site,
-    items: items.map((item) => ({
-      title: item.data.title,
-      description: item.data.summary,
-      pubDate: item.data.date,
-      link: item.slug.startsWith("blog")
-        ? `/blog/${item.slug}/`
-        : `/projects/${item.slug}/`,
-    })),
+    items,
   })
 }
