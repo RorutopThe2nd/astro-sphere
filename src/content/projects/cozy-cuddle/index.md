@@ -11,7 +11,9 @@ tags:
 
 <img src="/projects/images/cozycuddlelogowhite.png" alt="Cozy Cuddle Logo" style="width: 600px; height: auto;" />
 
-Cozy Cuddle is a 4-player co-op survival horror game set in an abandoned children's complex nineteen years after its shutdown. Players select distinct characters and work together to solve puzzles, uncover lore, and survive hostile animatronics. _(Note: Development concluded prior to release after studio funding ran out.)_
+Cozy Cuddle is a 4-player co-op survival horror game set in an abandoned children's complex nineteen years after its shutdown. Players select distinct characters and work together to solve puzzles, uncover lore, and survive hostile animatronics.
+
+> _Disclaimer: Development concluded prior to release after studio funding ran out. 3D character models, environment art, and maps showcased here are the property of PixelMob Studios and are displayed with permission for portfolio demonstration._
 
 ## Role & Technical Leadership
 
