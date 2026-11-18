@@ -77,6 +77,32 @@ Built a production-hardened multiplayer lobby and matchmaking pipeline designed 
 - **Multi-Cell Spatial Inventory & Lore System:** Built a Resident Evil-style multi-slot grid inventory in `roblox-ts` + React with region-touch checkpoint persistence via `ProfileStore`, alongside a dedicated lore document reader and client-rendered external visuals (flashlights, weapon muzzles) for equipped items.
 - **Async Cutscene Sequencer:** Created a sequence-based cutscene framework powered by asynchronous `Promise` chaining for scripted narrative events.
 
+## Legacy Luau Prototype Systems (2024–2025)
+
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/cozy-cuddle/legacy/animated-prompt.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Animated Proximity Prompt</figcaption>
+  </figure>
+
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/cozy-cuddle/legacy/briefcase-system.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Briefcase System</figcaption>
+  </figure>
+
+  <figure style="margin: 0;">
+    <video controls preload="metadata" style="width: 100%; border-radius: 8px; display: block;" src="/projects/videos/cozy-cuddle/legacy/generator-minigame.mp4"></video>
+    <figcaption style="text-align: center; font-size: 0.875rem; margin-top: 0.4rem; opacity: 0.8;">Generator Minigame (Wire and Control Panel Puzzle)</figcaption>
+  </figure>
+</div>
+
+Prior to migrating the codebase to `roblox-ts`, I built several interactive puzzle and interaction prototypes in native Luau during early development:
+
+- **2D Verlet-Rope Wire Generator Minigame:** Wrote a custom `Rope`/`VerletNode` physics layer that simulates each wire as a chain of `GuiObject` nodes under gravity (`Vector2(0, 196.2)`), solved with five distance-constraint iterations every `Heartbeat` and rendered entirely in scaled UI space. Wires are spawned from colour-coded templates (Red/Blue/Green/Yellow/Black), and both their positions and their deliberately mismatched starting connections are shuffled so no two attempts look alike. Circular barrier frames act as static colliders that the simulated segments slide around; dragging a wire head lerps it toward the cursor with tweened colour feedback (green for a correct pairing, white for neutral, red for a wrong-connection grab), and correctly paired wires lock in place while incorrect ones can be picked back up. The puzzle's wire count is drawn from a weighted distribution (typically 2–5) and completion is published through a shared `Req` table.
+- **Procedurally Generated Control-Panel Puzzle:** Built a collage generator that recursively nests randomly oriented `UIListLayout` containers to assemble a panel grid from a small set of pre-authored, custom-textured layout templates, then populates each cell with clones of reusable `Knob`, `Slider`, and `Lever` control templates (horizontal/vertical and large/small slider variants). Every control registers a GUID-keyed entry in a `Req` module and disconnects its own input once solved: knobs snap to 32 detents across a ±157.5° range against a hidden target marker with a ratchet sound, sliders resolve to one of 88 detents and use a sprite-sheet lamp plus a proximity "ping" cue to guide the player into the target band, and levers run their own damped spring/gravity Verlet integration with layered wood-groan, metal-creak and metal-thump audio—and physically jam short of the end until the other controls are finished. A central `StarterGui` controller picks the minigame per `Generator`-tagged prompt, freezes player actions with `ContextActionService`, and only marks the generator activated once every `Req` flag reads true.
+- **Animated Proximity Prompts:** Replaced the stock prompt presentation with a `ProximityPromptService`-driven system that clones a `CozyPrompt` `BillboardGui` onto the prompt's parent on `PromptShown`, reading the prompt's own `ObjectText`, `KeyboardKeyCode` and `HoldDuration` into the UI. A shared `PromptTweenInfo` module centralises the easing curves for entrance/exit, orbit, scaling and looping pattern animations, while a `RenderStepped` loop orbits a glowing star around a debug-tunable pivot, jitters the key label, scrolls the bar fill patterns and resizes the object label for wrapped text. Hold interactions reveal a gradient fill bar whose `UIGradient` keypoints track real hold progress and roll back on cancellation; activation and `PromptHidden` fire distinct exit sequences that tear down every connection and cloned instance.
+- **Briefcase Interaction Prototype:** Prototyped an inspect-and-equip briefcase built from a `BRIEFCASE_PLACEHOLD` model containing tool children (Flashlight, UV Flashlight, Mega Flashlight, Batteries, LockPicks) and matching `HITBOX_` parts. A `RenderStepped` camera raycast with an `Include` filter resolves the hovered tool into a `CurToolName` value, which toggles per-tool `Highlight` objects and drives a cursor-following, depth-scaled tooltip that pulls name, description and cost from a `ToolDesc` table; the case itself used authored open/close animations.
+
 ## Reusable UI & Tooling Pipeline
 
 - **Reusable React UI Component Library:** Engineered a modular UI toolkit featuring a Z-index-managed modal stack with portal rendering, confirm/cancel dialog semantics, settings tabs, and validated input controls (cyclers, sliders, text-box steppers, and length-validated text inputs) to reduce development overhead across menus.
