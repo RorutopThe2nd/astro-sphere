@@ -22,7 +22,7 @@ All text, code snippets, custom UI demos, and technical write-ups showcased on t
 
 #### External Links
 
-This website contains links to external platforms such as GitHub, Roblox, and social media. Rorutop is not responsible for the content or practices of third-party websites.
+This website contains links to external platforms such as GitHub, Discord, and social media. Rorutop is not responsible for the content or practices of third-party websites.
 
 #### Changes to These Terms
 
