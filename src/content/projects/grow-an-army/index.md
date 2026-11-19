@@ -6,8 +6,8 @@ draft: false
 tags:
   - Luau
   - Roblox-TypeScript
-# demoUrl: https://astro-sphere-demo.vercel.app
-# repoUrl: https://github.com/RorutopThe2nd/GrowAnArmy
+demoUrl: https://www.roblox.com/games/94546890675562/Army-Simulation-Demo
+repoUrl: https://github.com/RorutopThe2nd/GrowAnArmy-Sample
 ---
 
 <img src="/projects/gif/militia.gif" alt="Militia run!" style="width: 200px; height: auto;" />
